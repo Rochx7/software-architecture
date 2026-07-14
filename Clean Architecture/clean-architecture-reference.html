@@ -1,0 +1,1094 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Clean Architecture — Node.js + TypeScript</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+    <style>
+      :root {
+        --bg: #0a0e1a;
+        --bg-alt: #0d1226;
+        --card: #10152b;
+        --card-alt: #141a35;
+        --border: #232c4d;
+        --border-soft: #1b2340;
+        --text: #e8eaf5;
+        --text-2: #9aa1c4;
+        --text-3: #5f6690;
+        --code-bg: #080b16;
+
+        --purple: #a78bfa;
+        --purple-bg: #1a1638;
+        --purple-soft: #241d4d;
+        --blue: #60a5fa;
+        --blue-bg: #0f1c38;
+        --blue-soft: #152747;
+        --teal: #5eead4;
+        --teal-bg: #0b2224;
+        --teal-soft: #103130;
+        --amber: #fbbf7a;
+        --amber-bg: #241a0c;
+        --amber-soft: #33250f;
+        --pink: #f0a8d0;
+        --pink-bg: #241026;
+        --pink-soft: #341536;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", system-ui, sans-serif;
+        line-height: 1.6;
+        padding: 0 0 80px;
+      }
+      .wrap {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 0 32px;
+      }
+
+      /* ---------- HERO ---------- */
+      .hero {
+        background:
+          radial-gradient(
+            ellipse 700px 300px at 20% 0%,
+            rgba(167, 139, 250, 0.14),
+            transparent 60%
+          ),
+          radial-gradient(
+            ellipse 700px 300px at 80% 0%,
+            rgba(96, 165, 250, 0.14),
+            transparent 60%
+          );
+        border-bottom: 1px solid var(--border);
+        padding: 64px 0 48px;
+      }
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        color: var(--text-2);
+        text-transform: uppercase;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 6px 14px;
+        margin-bottom: 20px;
+      }
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--blue);
+      }
+      h1 {
+        font-size: 38px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        background: linear-gradient(90deg, #c9b8ff, #8bb4ff 55%, #7fd7ca);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .subtitle {
+        color: var(--text-2);
+        font-size: 16px;
+        margin-top: 12px;
+        max-width: 620px;
+      }
+      .usecase-tag {
+        display: inline-block;
+        margin-top: 20px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        color: var(--purple);
+        background: var(--purple-bg);
+        border: 1px solid var(--purple-soft);
+        border-radius: 6px;
+        padding: 6px 12px;
+      }
+
+      /* ---------- SECTION HEADERS ---------- */
+      section {
+        padding: 56px 0;
+        border-bottom: 1px solid var(--border-soft);
+      }
+      .section-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text-3);
+        margin-bottom: 10px;
+      }
+      h2 {
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        margin-bottom: 8px;
+      }
+      .section-desc {
+        color: var(--text-2);
+        font-size: 15px;
+        max-width: 640px;
+        margin-bottom: 28px;
+      }
+
+      /* ---------- RINGS DIAGRAM ---------- */
+      .rings {
+        display: flex;
+        justify-content: center;
+        padding: 20px 0 8px;
+      }
+      .ring-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 20px;
+        justify-content: center;
+        margin-top: 20px;
+      }
+      .ring-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--text-2);
+      }
+      .swatch {
+        width: 11px;
+        height: 11px;
+        border-radius: 3px;
+        flex-shrink: 0;
+      }
+
+      /* ---------- LAYER CARDS ---------- */
+      .layer {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        margin-bottom: 28px;
+        background: var(--card);
+      }
+      .layer-head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border);
+        border-left: 4px solid transparent;
+      }
+      .layer-num {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 600;
+        font-size: 13px;
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .layer-title {
+        font-size: 17px;
+        font-weight: 700;
+      }
+      .layer-sub {
+        font-size: 13px;
+        color: var(--text-2);
+        margin-top: 2px;
+      }
+      .layer-body {
+        padding: 24px;
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 24px;
+      }
+      @media (max-width: 720px) {
+        .layer-body {
+          grid-template-columns: 1fr;
+        }
+        .wrap {
+          padding: 0 18px;
+        }
+        h1 {
+          font-size: 28px;
+        }
+      }
+
+      .filepath {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12.5px;
+        color: var(--text-2);
+        background: var(--code-bg);
+        border: 1px solid var(--border-soft);
+        border-radius: 6px;
+        padding: 6px 10px;
+        display: inline-block;
+        margin-bottom: 10px;
+      }
+      pre {
+        background: var(--code-bg) !important;
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        padding: 14px 16px !important;
+        font-size: 12.5px !important;
+        overflow-x: auto;
+        margin: 0 !important;
+      }
+      code {
+        font-family: "JetBrains Mono", monospace !important;
+      }
+
+      .points {
+        list-style: none;
+        font-size: 14px;
+        color: var(--text-2);
+      }
+      .points li {
+        padding-left: 20px;
+        position: relative;
+        margin-bottom: 10px;
+      }
+      .points li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 8px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+      }
+
+      .callout {
+        margin-top: 14px;
+        border-radius: 8px;
+        padding: 12px 14px;
+        font-size: 13px;
+        border: 1px solid var(--border-soft);
+      }
+      .callout .label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text-3);
+        margin-bottom: 6px;
+      }
+      .verb-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+      }
+      .verb-chip {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        background: var(--code-bg);
+        border: 1px solid var(--border-soft);
+        border-radius: 5px;
+        padding: 3px 8px;
+        color: var(--text-2);
+      }
+
+      /* color mapping per layer */
+      .l-purple .layer-head {
+        border-left-color: var(--purple);
+      }
+      .l-purple .layer-num {
+        background: var(--purple-bg);
+        color: var(--purple);
+        border: 1px solid var(--purple-soft);
+      }
+      .l-purple .points li::before {
+        background: var(--purple);
+      }
+      .l-purple .callout {
+        background: var(--purple-bg);
+      }
+
+      .l-blue .layer-head {
+        border-left-color: var(--blue);
+      }
+      .l-blue .layer-num {
+        background: var(--blue-bg);
+        color: var(--blue);
+        border: 1px solid var(--blue-soft);
+      }
+      .l-blue .points li::before {
+        background: var(--blue);
+      }
+      .l-blue .callout {
+        background: var(--blue-bg);
+      }
+
+      .l-teal .layer-head {
+        border-left-color: var(--teal);
+      }
+      .l-teal .layer-num {
+        background: var(--teal-bg);
+        color: var(--teal);
+        border: 1px solid var(--teal-soft);
+      }
+      .l-teal .points li::before {
+        background: var(--teal);
+      }
+      .l-teal .callout {
+        background: var(--teal-bg);
+      }
+
+      .l-amber .layer-head {
+        border-left-color: var(--amber);
+      }
+      .l-amber .layer-num {
+        background: var(--amber-bg);
+        color: var(--amber);
+        border: 1px solid var(--amber-soft);
+      }
+      .l-amber .points li::before {
+        background: var(--amber);
+      }
+      .l-amber .callout {
+        background: var(--amber-bg);
+      }
+
+      .l-pink .layer-head {
+        border-left-color: var(--pink);
+      }
+      .l-pink .layer-num {
+        background: var(--pink-bg);
+        color: var(--pink);
+        border: 1px solid var(--pink-soft);
+      }
+      .l-pink .points li::before {
+        background: var(--pink);
+      }
+      .l-pink .callout {
+        background: var(--pink-bg);
+      }
+
+      /* ---------- DEPENDENCY RULE ---------- */
+      .dep-flow {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+        padding: 20px 0;
+      }
+      .dep-box {
+        width: 280px;
+        text-align: center;
+        padding: 16px 20px;
+        border-radius: 10px;
+        border: 1px solid var(--border-soft);
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .dep-sub {
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--text-2);
+        margin-top: 4px;
+      }
+      .dep-arrow {
+        font-family: "JetBrains Mono", monospace;
+        color: var(--text-3);
+        font-size: 20px;
+        padding: 4px 0;
+      }
+      .dep-note {
+        margin-top: 24px;
+        text-align: center;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        color: var(--blue);
+        background: var(--blue-bg);
+        border: 1px solid var(--blue-soft);
+        border-radius: 8px;
+        padding: 12px 20px;
+        max-width: 420px;
+      }
+
+      /* ---------- FOLDER TREE ---------- */
+      .tree {
+        background: var(--code-bg);
+        border: 1px solid var(--border-soft);
+        border-radius: 10px;
+        padding: 20px 24px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        color: var(--text-2);
+        line-height: 1.9;
+        overflow-x: auto;
+      }
+      .tree .folder {
+        color: var(--blue);
+      }
+      .tree .file {
+        color: var(--text);
+      }
+      .tree .comment {
+        color: var(--text-3);
+      }
+
+      /* ---------- Q&A GRID ---------- */
+      .qa-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+      @media (max-width: 720px) {
+        .qa-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .qa-card {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px 22px;
+        background: var(--card);
+      }
+      .qa-card h3 {
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .qa-card ul {
+        list-style: none;
+        font-size: 13.5px;
+        color: var(--text-2);
+      }
+      .qa-card li {
+        padding-left: 18px;
+        position: relative;
+        margin-bottom: 8px;
+      }
+      .qa-card li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 7px;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+      }
+      .qa-yes h3 {
+        color: var(--teal);
+      }
+      .qa-yes li::before {
+        background: var(--teal);
+      }
+      .qa-no h3 {
+        color: var(--pink);
+      }
+      .qa-no li::before {
+        background: var(--pink);
+      }
+
+      footer {
+        text-align: center;
+        padding: 40px 0 0;
+        color: var(--text-3);
+        font-size: 12.5px;
+        font-family: "JetBrains Mono", monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="hero">
+      <div class="wrap">
+        <div class="eyebrow">
+          <span class="dot"></span> Referência de arquitetura de software
+        </div>
+        <h1>Clean Architecture<br />Node.js + TypeScript</h1>
+        <p class="subtitle">
+          Como identificar o que pertence a cada camada, seguindo os princípios
+          de Robert C. Martin (Uncle Bob). A regra de dependência é o núcleo de
+          tudo: as setas sempre apontam para dentro.
+        </p>
+        <span class="usecase-tag">Caso de uso: Cadastrar Usuário</span>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <section>
+        <div class="section-label">Visão geral</div>
+        <h2>As camadas concêntricas</h2>
+        <p class="section-desc">
+          Cada anel só pode conhecer o anel imediatamente interno. Quanto mais
+          para fora, mais a camada sabe sobre tecnologia; quanto mais para
+          dentro, mais ela sabe sobre regra de negócio.
+        </p>
+
+        <div class="rings">
+          <svg
+            width="380"
+            height="380"
+            viewBox="0 0 380 380"
+            role="img"
+            aria-label="Diagrama de anéis concêntricos da Clean Architecture"
+          >
+            <circle
+              cx="190"
+              cy="190"
+              r="180"
+              fill="var(--pink-bg)"
+              stroke="var(--pink)"
+              stroke-width="1"
+            />
+            <circle
+              cx="190"
+              cy="190"
+              r="140"
+              fill="var(--amber-bg)"
+              stroke="var(--amber)"
+              stroke-width="1"
+            />
+            <circle
+              cx="190"
+              cy="190"
+              r="100"
+              fill="var(--teal-bg)"
+              stroke="var(--teal)"
+              stroke-width="1"
+            />
+            <circle
+              cx="190"
+              cy="190"
+              r="62"
+              fill="var(--blue-bg)"
+              stroke="var(--blue)"
+              stroke-width="1"
+            />
+            <circle
+              cx="190"
+              cy="190"
+              r="30"
+              fill="var(--purple-bg)"
+              stroke="var(--purple)"
+              stroke-width="1.2"
+            />
+
+            <text
+              x="190"
+              y="187"
+              text-anchor="middle"
+              fill="var(--purple)"
+              font-family="Inter"
+              font-size="11"
+              font-weight="600"
+            >
+              Entities
+            </text>
+            <text
+              x="190"
+              y="90"
+              text-anchor="middle"
+              fill="var(--blue)"
+              font-family="Inter"
+              font-size="11"
+              font-weight="600"
+            >
+              Use Cases
+            </text>
+            <text
+              x="190"
+              y="55"
+              text-anchor="middle"
+              fill="var(--teal)"
+              font-family="Inter"
+              font-size="11"
+              font-weight="600"
+            >
+              Gateways
+            </text>
+            <text
+              x="190"
+              y="24"
+              text-anchor="middle"
+              fill="var(--amber)"
+              font-family="Inter"
+              font-size="11"
+              font-weight="600"
+            >
+              Infrastructure
+            </text>
+            <text
+              x="190"
+              y="12"
+              text-anchor="middle"
+              fill="var(--pink)"
+              font-family="Inter"
+              font-size="10"
+              font-weight="600"
+              style="display: none"
+            ></text>
+          </svg>
+        </div>
+        <div class="ring-legend">
+          <div class="ring-legend-item">
+            <span class="swatch" style="background: var(--purple)"></span
+            >Entities — regras de negócio puras
+          </div>
+          <div class="ring-legend-item">
+            <span class="swatch" style="background: var(--blue)"></span>Use
+            Cases — orquestração
+          </div>
+          <div class="ring-legend-item">
+            <span class="swatch" style="background: var(--teal)"></span>Gateways
+            — contratos/portas
+          </div>
+          <div class="ring-legend-item">
+            <span class="swatch" style="background: var(--amber)"></span
+            >Infrastructure — implementação concreta
+          </div>
+          <div class="ring-legend-item">
+            <span class="swatch" style="background: var(--pink)"></span
+            >Controllers — entrada HTTP
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-label">Camada 1</div>
+        <h2>Entities — Enterprise Business Rules</h2>
+        <p class="section-desc">
+          O centro do sistema. Contém as regras de negócio mais fundamentais,
+          aquelas que existiriam mesmo sem nenhum software.
+        </p>
+
+        <div class="layer l-purple">
+          <div class="layer-head">
+            <div class="layer-num">01</div>
+            <div>
+              <div class="layer-title">Entities</div>
+              <div class="layer-sub">src/domain/entities/User.ts</div>
+            </div>
+          </div>
+          <div class="layer-body">
+            <div>
+              <div class="filepath">src/domain/entities/User.ts</div>
+              <pre><code class="language-typescript">export class User {
+  constructor(
+    public readonly id: string,
+    public readonly name: string,
+    public readonly email: string
+  ) {}
+
+  changeName(name: string) {
+    if (!name) throw new Error('Nome obrigatório')
+    this.name = name
+  }
+}</code></pre>
+            </div>
+            <div>
+              <ul class="points">
+                <li>Contém regras de negócio puras</li>
+                <li>Não conhece banco de dados</li>
+                <li>Não conhece API</li>
+                <li>Não conhece frameworks</li>
+              </ul>
+              <div class="callout">
+                <div class="label">Teste mental</div>
+                Se essa classe existiria mesmo sem Node.js, sem banco e sem HTTP
+                — ela pertence aqui.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-label">Camada 2</div>
+        <h2>Use Cases — Application Business Rules</h2>
+        <p class="section-desc">
+          Representam uma intenção do usuário. Cada Use Case orquestra as
+          Entities para executar uma ação específica do sistema.
+        </p>
+
+        <div class="layer l-blue">
+          <div class="layer-head">
+            <div class="layer-num">02</div>
+            <div>
+              <div class="layer-title">Use Cases</div>
+              <div class="layer-sub">
+                src/application/useCases/CreateUserUseCase.ts
+              </div>
+            </div>
+          </div>
+          <div class="layer-body">
+            <div>
+              <div class="filepath">
+                src/application/useCases/CreateUserUseCase.ts
+              </div>
+              <pre><code class="language-typescript">export class CreateUserUseCase {
+  constructor(
+    private userRepository: UserRepository
+  ) {}
+
+  async execute(input: CreateUserInput) {
+    const user = new User(
+      crypto.randomUUID(),
+      input.name,
+      input.email
+    )
+
+    await this.userRepository.save(user)
+
+    return user
+  }
+}</code></pre>
+            </div>
+            <div>
+              <ul class="points">
+                <li>Orquestra regras de negócio</li>
+                <li>Executa uma ação do sistema</li>
+                <li>Representa uma intenção do usuário</li>
+                <li>Não conhece banco específico</li>
+              </ul>
+              <div class="callout">
+                <div class="label">Regra prática</div>
+                Se a ação pode ser descrita por um verbo de negócio,
+                provavelmente é um Use Case.
+                <div class="verb-list">
+                  <span class="verb-chip">CreateUser</span>
+                  <span class="verb-chip">UpdateUser</span>
+                  <span class="verb-chip">DeleteUser</span>
+                  <span class="verb-chip">GenerateReport</span>
+                  <span class="verb-chip">CalculateRetirement</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-label">Camada 3</div>
+        <h2>Ports / Gateways</h2>
+        <p class="section-desc">
+          São contratos — não implementações. Definem o que o sistema precisa
+          fazer, nunca como isso será feito.
+        </p>
+
+        <div class="layer l-teal">
+          <div class="layer-head">
+            <div class="layer-num">03</div>
+            <div>
+              <div class="layer-title">Gateways</div>
+              <div class="layer-sub">
+                src/application/gateways/UserRepository.ts
+              </div>
+            </div>
+          </div>
+          <div class="layer-body">
+            <div>
+              <div class="filepath">
+                src/application/gateways/UserRepository.ts
+              </div>
+              <pre><code class="language-typescript">export interface UserRepository {
+  save(user: User): Promise&lt;void&gt;
+  findById(id: string): Promise&lt;User | null&gt;
+}</code></pre>
+            </div>
+            <div>
+              <ul class="points">
+                <li>Define contratos</li>
+                <li>Não possui implementação</li>
+                <li>É uma porta de saída</li>
+                <li>O Use Case depende dela</li>
+              </ul>
+              <div class="callout">
+                <div class="label">Gateway é</div>
+                "O que o sistema precisa fazer" — nunca "como será feito".
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-label">Camada 4</div>
+        <h2>Infrastructure</h2>
+        <p class="section-desc">
+          Implementa os Gateways com tecnologia real. É a camada mais
+          substituível de todo o sistema.
+        </p>
+
+        <div class="layer l-amber">
+          <div class="layer-head">
+            <div class="layer-num">04</div>
+            <div>
+              <div class="layer-title">Infrastructure</div>
+              <div class="layer-sub">
+                src/infra/database/PostgresUserRepository.ts
+              </div>
+            </div>
+          </div>
+          <div class="layer-body">
+            <div>
+              <div class="filepath">
+                src/infra/database/PostgresUserRepository.ts
+              </div>
+              <pre><code class="language-typescript">export class PostgresUserRepository
+  implements UserRepository {
+
+  async save(user: User) {
+    await prisma.user.create({
+      data: {
+        id: user.id,
+        name: user.name,
+        email: user.email
+      }
+    })
+  }
+
+  async findById(id: string) {
+    return prisma.user.findUnique({
+      where: { id }
+    })
+  }
+}</code></pre>
+            </div>
+            <div>
+              <ul class="points">
+                <li>Implementa o Gateway</li>
+                <li>Conhece Prisma</li>
+                <li>Conhece PostgreSQL</li>
+                <li>Pode ser trocada por MongoDB sem alterar o Use Case</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-label">Camada 5</div>
+        <h2>Controllers</h2>
+        <p class="section-desc">
+          A porta de entrada HTTP. Recebem a requisição, chamam o Use Case
+          correto e devolvem a resposta — nada além disso.
+        </p>
+
+        <div class="layer l-pink">
+          <div class="layer-head">
+            <div class="layer-num">05</div>
+            <div>
+              <div class="layer-title">Controllers</div>
+              <div class="layer-sub">src/interfaces/http/UserController.ts</div>
+            </div>
+          </div>
+          <div class="layer-body">
+            <div>
+              <div class="filepath">src/interfaces/http/UserController.ts</div>
+              <pre><code class="language-typescript">export class UserController {
+  constructor(
+    private createUserUseCase: CreateUserUseCase
+  ) {}
+
+  async handle(req: Request, res: Response) {
+    const user =
+      await this.createUserUseCase.execute(req.body)
+
+    return res.status(201).json(user)
+  }
+}</code></pre>
+            </div>
+            <div>
+              <ul class="points">
+                <li>Recebe HTTP</li>
+                <li>Chama Use Case</li>
+                <li>Retorna resposta</li>
+                <li>Não contém regra de negócio</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-label">O princípio central</div>
+        <h2>Dependency Rule</h2>
+        <p class="section-desc">
+          As dependências de código-fonte sempre apontam para dentro. A
+          implementação concreta depende da abstração — nunca o contrário.
+        </p>
+
+        <div class="dep-flow">
+          <div
+            class="dep-box"
+            style="
+              border-color: var(--pink-soft);
+              background: var(--pink-bg);
+              color: var(--pink);
+            "
+          >
+            Controller
+            <div class="dep-sub" style="color: var(--text-2)">recebe HTTP</div>
+          </div>
+          <div class="dep-arrow">↓</div>
+          <div
+            class="dep-box"
+            style="
+              border-color: var(--blue-soft);
+              background: var(--blue-bg);
+              color: var(--blue);
+            "
+          >
+            Use Case
+            <div class="dep-sub" style="color: var(--text-2)">
+              orquestra a regra
+            </div>
+          </div>
+          <div class="dep-arrow">↓</div>
+          <div
+            class="dep-box"
+            style="
+              border-color: var(--teal-soft);
+              background: var(--teal-bg);
+              color: var(--teal);
+            "
+          >
+            Gateway (interface)
+            <div class="dep-sub" style="color: var(--text-2)">
+              define o contrato
+            </div>
+          </div>
+          <div class="dep-arrow">↑</div>
+          <div
+            class="dep-box"
+            style="
+              border-color: var(--amber-soft);
+              background: var(--amber-bg);
+              color: var(--amber);
+            "
+          >
+            Repository (implementação)
+            <div class="dep-sub" style="color: var(--text-2)">
+              Postgres, Mongo, etc.
+            </div>
+          </div>
+          <div class="dep-note">As dependências sempre apontam para dentro</div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-label">Organização de arquivos</div>
+        <h2>Estrutura de pastas</h2>
+        <p class="section-desc">
+          Cada camada mora em sua própria pasta — a estrutura de diretórios
+          espelha a arquitetura.
+        </p>
+
+        <div class="tree">
+          <span class="folder">src</span><br />
+          │<br />
+          ├── <span class="folder">domain</span><br />
+          │&nbsp;&nbsp;&nbsp;└── <span class="folder">entities</span><br />
+          │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──
+          <span class="file">User.ts</span>
+          <span class="comment">// Camada 1</span><br />
+          │<br />
+          ├── <span class="folder">application</span><br />
+          │&nbsp;&nbsp;&nbsp;├── <span class="folder">useCases</span><br />
+          │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└──
+          <span class="file">CreateUserUseCase.ts</span>
+          <span class="comment">// Camada 2</span><br />
+          │&nbsp;&nbsp;&nbsp;└── <span class="folder">gateways</span><br />
+          │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──
+          <span class="file">UserRepository.ts</span>
+          <span class="comment">// Camada 3</span><br />
+          │<br />
+          ├── <span class="folder">infra</span><br />
+          │&nbsp;&nbsp;&nbsp;└── <span class="folder">database</span><br />
+          │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──
+          <span class="file">PostgresUserRepository.ts</span>
+          <span class="comment">// Camada 4</span><br />
+          │<br />
+          ├── <span class="folder">interfaces</span><br />
+          │&nbsp;&nbsp;&nbsp;└── <span class="folder">http</span><br />
+          │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──
+          <span class="file">UserController.ts</span>
+          <span class="comment">// Camada 5</span><br />
+          │<br />
+          └── <span class="folder">main</span><br />
+          &nbsp;&nbsp;&nbsp;&nbsp;└── <span class="folder">factories</span
+          ><br />
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──
+          <span class="file">makeCreateUser.ts</span>
+          <span class="comment">// injeção de dependência</span>
+        </div>
+      </section>
+
+      <section style="border-bottom: none">
+        <div class="section-label">Fixando o conceito</div>
+        <h2>O que é (e o que não é) cada peça</h2>
+
+        <div class="qa-grid">
+          <div class="qa-card">
+            <h3>O que é um Use Case?</h3>
+            <ul class="qa-yes">
+              <li>Uma ação do sistema</li>
+              <li>Possui um verbo</li>
+              <li>Orquestra regras de negócio</li>
+              <li>Não conhece tecnologia</li>
+            </ul>
+          </div>
+          <div class="qa-card">
+            <h3>O que é um Gateway?</h3>
+            <ul class="qa-yes">
+              <li>Uma abstração</li>
+              <li>Um contrato</li>
+              <li>Representa algo externo</li>
+              <li>Banco, API, cache, mensageria</li>
+            </ul>
+          </div>
+          <div class="qa-card">
+            <h3>O que NÃO é um Use Case?</h3>
+            <ul class="qa-no">
+              <li><code>Prisma</code></li>
+              <li><code>Axios</code></li>
+              <li>SQL</li>
+              <li><code>Express</code></li>
+              <li>React</li>
+            </ul>
+          </div>
+          <div class="qa-card">
+            <h3>O que NÃO é um Gateway?</h3>
+            <ul class="qa-no">
+              <li>Uma implementação concreta</li>
+              <li>Uma classe que conhece Prisma diretamente</li>
+              <li>Uma chamada HTTP com Axios embutida</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <footer>·Clean Architecture</footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <script>
+      Prism.highlightAll();
+    </script>
+  </body>
+</html>
