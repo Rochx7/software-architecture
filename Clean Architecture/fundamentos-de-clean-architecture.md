@@ -12,6 +12,8 @@ A Clean Architecture é muito orientada a **Use Cases**. Ela utiliza **Domain Mo
 - São as linhas pretas fazendo a ligação entre as camadas.
 - Em linhas gerais, ela diz que quem está fora conhece (ou pode conhecer) quem está dentro, mas quem está dentro não pode conhecer quem está fora.
 
+<br/>
+
 ## Entities
 
 - Representam as regras de negócio independentes, ou seja, que podem ser utilizadas pelos Use Cases para compor as regras de negócio da aplicação.
@@ -33,6 +35,8 @@ A Clean Architecture é muito orientada a **Use Cases**. Ela utiliza **Domain Mo
 - Email
 - Name
 - Password
+
+<br/>
 
 ## Use Cases
 
@@ -99,10 +103,98 @@ export class Signup implements UseCase {
 >
 > Um CRUD é composto por operações de **Create**, **Read**, **Update** e **Delete**, enquanto um Use Case nem sempre executa esse tipo de operação. Muitas vezes ele realiza uma combinação dessas operações, envolvendo diferentes tabelas e outros tipos de recursos externos.
 
+<br/>
+
 ## Interface Adapters
 
 - Funcionam como uma ponte entre o Core da aplicação e os recursos externos.
+- São responsáveis por traduzir dados entre o domínio e as tecnologias utilizadas pela aplicação.
 - Podem ser representados por código SQL, mapeamento de URLs, Gateways, Controllers, Endpoints ou APIs externas.
+
+### Exemplos de Interface Adapters
+
+- **AccountRepository**: consultas (queries) SQL.
+- **PaymentGateway**: endpoint, payload e integração com provedores de pagamento.
+- **OrderController**: mapeamento de URLs, extração de parâmetros e query strings.
+- **EventPublisher**: publicação de mensagens em filas.
+- **OrderHandler**: processamento de mensagens recebidas.
+
+### Exemplo de código
+
+Repare que a conexão com o banco de dados ficou abstraída pela interface `DatabaseConnection`, criando independência em relação à tecnologia utilizada. Dessa forma, o repositório não depende diretamente de uma biblioteca específica para acesso ao banco de dados.
+
+```typescript
+// OrderRepositoryDatabase.ts
+export class OrderRepositoryDatabase implements OrderRepository {
+
+    constructor(readonly databaseConnection: DatabaseConnection) {
+    }
+
+    async save(order: Order): Promise<void> {
+        await this.databaseConnection.query(
+            "insert into app.order (order_id, account_id, market_id, side, quantity, price, status, fill_quantity, fill_price, timestamp) values ($1, $2, $3, $4, $5, $6, $7 ...)"
+        );
+    }
+
+    async update(order: Order): Promise<void> {
+        await this.databaseConnection.query(
+            "update app.order set status = $1, fill_quantity = $2, fill_price = $3 where order_id = $4",
+            [order.status, order.fillQuantity, order.fillPrice, order.orderId]
+        );
+    }
+
+    async getById(orderId: string): Promise<Order> {
+        const [orderData] = await this.databaseConnection.query(
+            "select * from app.order where order_id = $1",
+            [orderId]
+        );
+
+        const order = new Order(
+            orderData.order_id,
+            orderData.account_id,
+            orderData.market_id,
+            orderData.side,
+            parseFloat(orderData.quantity),
+            parseFloat(orderData.price),
+            parseFloat(orderData.fill_quantity),
+            {...}
+        );
+
+        return order;
+    }
+
+    async listByMarketIdAndStatus(
+        marketId: string,
+        status: string
+    ): Promise<Order[]> {
+        const ordersData = await this.databaseConnection.query(
+            "select * from app.order where market_id = $1 and status = $2",
+            [marketId, status]
+        );
+
+        const orders: Order[] = [];
+
+        for (const orderData of ordersData) {
+            const order = new Order(
+                orderData.order_id,
+                orderData.account_id,
+                orderData.market_id,
+                orderData.side,
+                parseFloat(orderData.quantity),
+                parseFloat(orderData.price),
+                parseFloat(orderData.fill_quantity),
+                {...}
+            );
+
+            orders.push(order);
+        }
+
+        return orders;
+    }
+}
+```
+
+<br/>
 
 ## Uso do padrão Domain Model
 
