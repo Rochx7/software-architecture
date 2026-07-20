@@ -7,13 +7,6 @@ A Clean Architecture é muito orientada a **Use Cases**. Ela utiliza **Domain Mo
 
 ![alt text](image.png)
 
-## Dependency Rule
-
-- São as linhas pretas fazendo a ligação entre as camadas.
-- Em linhas gerais, ela diz que quem está fora conhece (ou pode conhecer) quem está dentro, mas quem está dentro não pode conhecer quem está fora.
-
-<br/>
-
 ## Entities
 
 - Representam as regras de negócio independentes, ou seja, que podem ser utilizadas pelos Use Cases para compor as regras de negócio da aplicação.
@@ -204,3 +197,73 @@ export class OrderRepositoryDatabase implements OrderRepository {
 - É a junção dessas duas camadas que abstrai a lógica da aplicação.
 
 ![alt text](image-1.png)
+
+<br/>
+
+## Frameworks and Drivers
+
+Os Frameworks and Drivers são o nível mais baixo da abstração e representam a interação com a tecnologia, com os componentes que realizam a conexão com o banco de dados, as requisições HTTP, a interação com o sistema de arquivos ou o acesso aos recursos do sistema operacional.
+
+**Exemplos de Frameworks and Drivers**
+
+- DatabaseConnection
+- HttpServer
+- HttpClient
+- Queue
+- PgPromiseAdapter
+- AxiosAdapter
+- ExpressAdapter
+
+**Como fica no codigo?**
+Nessa camada temos o uso do padrão Adapter para proporcionar a independência de bibliotecas e frameworks.
+
+```typescript
+import pgp from "pg-promise";
+
+export default interface DatabaseConnection {
+  query(statement: string, params: any): Promise<any>;
+  close(): Promise<void>;
+}
+
+export class PgPromiseAdapter implements DatabaseConnection {
+  connection: pgp.IDatabase<{}>;
+
+  constructor() {
+    this.connection = pgp()("postgres://postgres:123456@localhost:5432/app");
+  }
+
+  async query(statement: string, params: any): Promise<any> {
+    return this.connection.query(statement, params);
+  }
+
+  async close(): Promise<void> {
+    return this.connection.$pool.end();
+  }
+}
+```
+
+<br/>
+
+## Dependency Rule
+
+Quem está dentro não conhece quem está fora, mas quem está fora conhece quem está dentro: as Entities não conhecem os Use Cases, e estes não conhecem a implementação dos Interface Adapters, que, por sua vez, não conhecem a implementação dos Frameworks and Drivers.
+
+> As Dependency Rules são as setas pretas fazendo a ligação entre as camadas de fora para dentro.
+
+- Em linhas gerais, ela diz que quem está fora conhece (ou pode conhecer) quem está dentro, mas quem está dentro não pode conhecer quem está fora.
+
+<br/>
+
+## Inicializacao
+
+Toda aplicação tem um ponto de entrada, ou _entrypoint_, e ele, em um design desacoplado, é responsável por realizar a inicialização das dependências.
+
+> Esse padrão é conhecido como **Composition Root** e é por meio dele que cada classe sabe qual dependência deve utilizar.
+
+<br/>
+
+#### Devo usar CLEAN ARCH em todos os projetos?
+
+Claro que não. Nem sempre devemos utilizar a mesma solução para resolver todos os problemas.
+
+Projetos de áreas como contabilidade, fiscal, previdenciária, jurídica etc. costumam se beneficiar bastante desse tipo de arquitetura. Nesses casos, ela faz muito sentido, principalmente quando combinada com DDD.
