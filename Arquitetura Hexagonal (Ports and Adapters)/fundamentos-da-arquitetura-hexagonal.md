@@ -1,6 +1,6 @@
-## ![alt text](image.png)
-
 # Fundamentos da Arquitetura Hexagonal (Ports and Adapters)
+
+## ![alt text](./resources/image.png)
 
 ## Por que o nome "Arquitetura Hexagonal"?
 

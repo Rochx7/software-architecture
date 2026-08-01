@@ -1,6 +1,6 @@
 # Aplicando Ports and Adapters com SOLID
 
-![alt text](image-1.png)
+![alt text](./resources/image-1.png)
 
 Ports and Adapters vai muito além da simples separação de responsabilidades. Essa arquitetura trata principalmente de **acoplamento**, **independência** e da **direção das dependências** dentro da aplicação.
 

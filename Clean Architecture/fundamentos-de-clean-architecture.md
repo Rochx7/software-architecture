@@ -5,7 +5,7 @@
 
 A Clean Architecture é muito orientada a **Use Cases**. Ela utiliza **Domain Model**, mas o centro são os Use Cases.
 
-![alt text](image.png)
+![alt text](./resources/image.png)
 
 ## Entities
 
@@ -44,7 +44,7 @@ A Clean Architecture é muito orientada a **Use Cases**. Ela utiliza **Domain Mo
 - GetAccount
 - ExecuteOrder
 
-![alt text](image-2.png)
+![alt text](./resources/image-2.png)
 
 <details>
 
@@ -196,7 +196,7 @@ export class OrderRepositoryDatabase implements OrderRepository {
 - Porém, o Use Case possui um papel fundamental de orquestração.
 - É a junção dessas duas camadas que abstrai a lógica da aplicação.
 
-![alt text](image-1.png)
+![alt text](./resources/image-1.png)
 
 <br/>
 
