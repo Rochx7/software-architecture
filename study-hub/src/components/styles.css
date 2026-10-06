@@ -1,0 +1,191 @@
+/* ---------- Shell ---------- */
+.shell {
+  display: grid;
+  grid-template-columns: minmax(200px, 260px) minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  padding: 5rem 1.5rem 2rem 3rem;
+  overflow-y: auto;
+}
+
+.sidebar-title {
+  margin: 0 0 1rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nav {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav-link {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.3rem 0.75rem;
+  border-left: 1px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  color: var(--fg);
+}
+
+.nav-link[data-status="active"] {
+  border-left-color: var(--fg);
+  color: var(--fg);
+  font-weight: 700;
+}
+
+.nav-num {
+  color: var(--faint);
+}
+
+.workspace {
+  min-width: 0;
+  padding: 0 2rem 6rem;
+}
+
+.topbar {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.content {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* ---------- Page header ---------- */
+.page-header {
+  margin: 2rem 0 4rem;
+  text-align: center;
+}
+
+.page-eyebrow {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 2.6rem;
+  line-height: 1.15;
+}
+
+.page-subtitle {
+  margin: 1rem 0 0;
+  color: var(--muted);
+}
+
+/* ---------- Section ---------- */
+.section {
+  margin-bottom: 3.5rem;
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 1.25rem;
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+}
+
+.section-index {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+/* ---------- Index row (título ..... rótulo) ---------- */
+.row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.35rem 0;
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.row-title {
+  font-weight: 700;
+}
+
+.row:hover .row-title {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.row-leader {
+  flex: 1;
+  border-bottom: 1px dotted var(--faint);
+  transform: translateY(-0.3em);
+}
+
+.row-label {
+  color: var(--muted);
+}
+
+/* ---------- Meta + prose ---------- */
+.meta {
+  margin: 0 0 0.25rem;
+}
+
+.meta strong {
+  margin-right: 0.4rem;
+}
+
+.meta span {
+  color: var(--muted);
+}
+
+.prose {
+  margin: 2rem 0 0;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+  white-space: pre-wrap; /* provisório: markdown ainda não é interpretado */
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 860px) {
+  .shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sidebar {
+    position: static;
+    height: auto;
+    padding: 1.5rem 1.25rem 0;
+  }
+
+  .nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+  }
+
+  .workspace {
+    padding: 0 1.25rem 4rem;
+  }
+
+  .page-title {
+    font-size: 2rem;
+  }
+}
